@@ -43,6 +43,19 @@ const Effects = ({
 
   return (
     <div className="effects-wrapper">
+      <BabylonEffects 
+        image={currentImage}
+        onRenderedImage={onDestructiveChange}
+        hasImage={hasImage}
+        appliedFilters={appliedFilters}
+        onUndo={onUndo}
+      />
+      <AIShaderGenerator 
+        onGenerateAndApply={onGenerateAndApplyAIShader}
+        isProcessing={isAIGenerating}
+        trainingData={trainingData}
+        onDownload={onDownloadTrainingData}
+      />
       <div className="effects-section">
         <h3>Effects & Filters</h3>
         <div className="effects-container">
@@ -69,20 +82,7 @@ const Effects = ({
         </div>
       </div>
       
-      <AIShaderGenerator 
-        onGenerateAndApply={onGenerateAndApplyAIShader}
-        isProcessing={isAIGenerating}
-        trainingData={trainingData}
-        onDownload={onDownloadTrainingData}
-      />
-
-      <BabylonEffects 
-        image={currentImage}
-        onRenderedImage={onDestructiveChange}
-        hasImage={hasImage}
-        appliedFilters={appliedFilters}
-        onUndo={onUndo}
-      />
+      
     </div>
   );
 };
