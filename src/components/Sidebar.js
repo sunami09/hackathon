@@ -11,7 +11,10 @@ const Sidebar = ({
   onDestructiveChange,
   appliedFilters,
   onUndo,
-  onShowNotification
+  onGenerateAndApplyAIShader,
+  isAIGenerating,
+  trainingData,
+  onDownloadTrainingData
 }) => {
   return (
     <div className="sidebar">
@@ -26,6 +29,10 @@ const Sidebar = ({
           onDestructiveChange={onDestructiveChange}
           appliedFilters={appliedFilters}
           onUndo={onUndo}
+          onGenerateAndApplyAIShader={onGenerateAndApplyAIShader}
+          isAIGenerating={isAIGenerating}
+          trainingData={trainingData}
+          onDownloadTrainingData={onDownloadTrainingData}
         />
       </div>
     </div>

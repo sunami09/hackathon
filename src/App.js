@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ImageViewer from './components/ImageViewer';
 import { applyCssFiltersToImage } from './utils/canvasUtils';
+import { getAIGenerationPrompt } from './utils/aiPrompt';
+import GLSLRenderer from './components/babylon/GLSLRenderer';
 
 function App() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -12,18 +14,17 @@ function App() {
   });
   const [zoom, setZoom] = useState(1);
   const [appliedFilters, setAppliedFilters] = useState([]);
+  
+  const [glslRenderer, setGlslRenderer] = useState(null);
+  const [isAIGenerating, setIsAIGenerating] = useState(false);
+  
+  const [trainingData, setTrainingData] = useState([]);
 
-  const [notification, setNotification] = useState('');
+  useEffect(() => {
+    setGlslRenderer(new GLSLRenderer());
+  }, []);
 
   const displayImage = processedImage || selectedImage;
-
-  const handleShowNotification = (message) => {
-    setNotification(message);
-  };
-
-  const handleClearNotification = () => {
-    setNotification('');
-  };
 
   const handleImageUpload = (imageData) => {
     setSelectedImage(imageData);
@@ -31,22 +32,29 @@ function App() {
     setHistory([]);
     setEffects({ brightness: 0, contrast: 0, saturation: 0, hue: 0, filters: [] });
     setAppliedFilters([]);
+    setTrainingData([]);
     setZoom(1);
   };
 
-  const handleDestructiveChange = (newImageData, filterId) => {
+  const handleDestructiveChange = (newImageData, shaderObject) => {
     if (displayImage) {
       setHistory(prevHistory => [...prevHistory, displayImage]);
     }
     setProcessedImage(newImageData);
-    if (filterId) {
-      setAppliedFilters(prev => [...prev, filterId]);
+    if (shaderObject) {
+      setAppliedFilters(prev => [...prev, shaderObject]);
     }
     setEffects({ brightness: 0, contrast: 0, saturation: 0, hue: 0, filters: [] });
   };
   
   const handleUndo = () => {
     if (history.length === 0) return;
+
+    const lastAppliedFilter = appliedFilters[appliedFilters.length - 1];
+    if (lastAppliedFilter && lastAppliedFilter.prompt) {
+        setTrainingData(prev => prev.slice(0, -1));
+    }
+
     const newHistory = [...history];
     const lastImage = newHistory.pop();
     setProcessedImage(lastImage === selectedImage ? null : lastImage);
@@ -59,6 +67,7 @@ function App() {
     setProcessedImage(null);
     setHistory([]);
     setAppliedFilters([]);
+    setTrainingData([]);
     setEffects({ brightness: 0, contrast: 0, saturation: 0, hue: 0, filters: [] });
   };
 
@@ -71,8 +80,114 @@ function App() {
         : [...effects.filters, value];
       
       const newImageData = await applyCssFiltersToImage(displayImage, { filters: newFilters });
-      handleDestructiveChange(newImageData, `css-filter-${Date.now()}`);
+      handleDestructiveChange(newImageData, { id: `css-filter-${Date.now()}` });
     }
+  };
+
+  const handleGenerateAndApplyAIShader = async (userPrompt) => {
+    if (!glslRenderer || !displayImage) {
+      window.alert("Please upload an image first.");
+      return;
+    }
+
+    setIsAIGenerating(true);
+    try {
+      const fullPrompt = getAIGenerationPrompt(userPrompt);
+      
+      const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+      const apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+      const payload = {
+        model: "gpt-4o",
+        messages: [
+            {
+                role: "system",
+                content: "You are an expert GLSL shader programmer. Your task is to return a single, valid JSON object based on the user's request. Do not include any markdown or explanatory text."
+            },
+            {
+                role: "user",
+                content: fullPrompt
+            }
+        ],
+        temperature: 0.1, 
+        max_tokens: 2048,
+        response_format: { "type": "json_object" }
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+      const rawText = result.choices[0].message.content;
+      console.log(rawText)
+      
+  
+      const trainingDataObject = { userInput: userPrompt, gptResponse: rawText };
+      setTrainingData(prev => [...prev, trainingDataObject]);
+
+      let shaderObject;
+      try {
+       
+        shaderObject = JSON.parse(rawText);
+      } catch (e) {
+        console.error("Failed to parse JSON from AI response:", e);
+        console.error("Raw AI response:", rawText);
+        throw new Error("AI returned invalid JSON. Please try again.");
+      }
+      
+      const finalShaderObject = {
+          ...shaderObject,
+          prompt: userPrompt,
+          id: `ai-${shaderObject.id}-${Date.now()}`
+      };
+
+      const parameters = {};
+      if (finalShaderObject.parameters) {
+        finalShaderObject.parameters.forEach(param => {
+          parameters[param.name] = param.default;
+        });
+      }
+      if (parameters.hasOwnProperty('time')) {
+          parameters.time = (Date.now() / 1000.0) % 3600;
+      }
+      
+      const newImageData = await glslRenderer.applyFilter(displayImage, finalShaderObject.fragmentShader, parameters);
+      
+      handleDestructiveChange(newImageData, finalShaderObject);
+
+    } catch (error) {
+      console.error("AI Shader Generation Failed:", error);
+      window.alert(`An error occurred: ${error.message}`);
+    } finally {
+      setIsAIGenerating(false);
+    }
+  };
+
+  const handleDownloadTrainingData = () => {
+      if (trainingData.length === 0) {
+          alert("You haven't generated any AI shaders to download yet.");
+          return;
+      }
+      const jsonString = JSON.stringify(trainingData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Data.json';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
   };
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 5));
@@ -90,7 +205,10 @@ function App() {
         onDestructiveChange={handleDestructiveChange}
         appliedFilters={appliedFilters}
         onUndo={handleUndo}
-        onShowNotification={handleShowNotification}
+        onGenerateAndApplyAIShader={handleGenerateAndApplyAIShader}
+        isAIGenerating={isAIGenerating}
+        trainingData={trainingData}
+        onDownloadTrainingData={handleDownloadTrainingData}
       />
       <ImageViewer 
         image={displayImage}
@@ -104,8 +222,6 @@ function App() {
         onResetAll={handleReset}
         canUndo={history.length > 0}
         canReset={!!processedImage}
-        notification={notification}
-        onClearNotification={handleClearNotification}
       />
     </div>
   );

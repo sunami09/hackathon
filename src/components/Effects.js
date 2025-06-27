@@ -1,5 +1,3 @@
-// src/components/Effects.js
-
 import React from 'react';
 import Brightness from './effects/Brightness';
 import Contrast from './effects/Contrast';
@@ -7,6 +5,7 @@ import Saturation from './effects/Saturation';
 import Hue from './effects/Hue';
 import Filters from './effects/Filters';
 import BabylonEffects from './BabylonEffects';
+import AIShaderGenerator from './AIShaderGenerator';
 
 const Effects = ({ 
   effects, 
@@ -16,24 +15,27 @@ const Effects = ({
   onDestructiveChange,
   appliedFilters,
   onUndo,
-  onShowNotification 
+  onGenerateAndApplyAIShader,
+  isAIGenerating,
+  trainingData,
+  onDownloadTrainingData
 }) => {
 
   if (!hasImage) {
     return (
       <div className="effects-wrapper">
-        <div className="placeholder-section">
-          <h3>Effects & Filters</h3>
-          <p className="placeholder-text">Upload an image to apply effects</p>
-        </div>
-
+        <AIShaderGenerator 
+          onGenerateAndApply={onGenerateAndApplyAIShader}
+          isProcessing={isAIGenerating}
+          trainingData={trainingData}
+          onDownload={onDownloadTrainingData}
+        />
         <BabylonEffects 
           image={null}
           hasImage={false}
           appliedFilters={[]}
           onUndo={onUndo}
-          onShowNotification={onShowNotification}
-          onRenderedImage={onDestructiveChange} 
+          onRenderedImage={onDestructiveChange}
         />
       </div>
     );
@@ -43,7 +45,6 @@ const Effects = ({
     <div className="effects-wrapper">
       <div className="effects-section">
         <h3>Effects & Filters</h3>
-        
         <div className="effects-container">
           <Brightness 
             value={effects.brightness} 
@@ -67,6 +68,13 @@ const Effects = ({
           />
         </div>
       </div>
+      
+      <AIShaderGenerator 
+        onGenerateAndApply={onGenerateAndApplyAIShader}
+        isProcessing={isAIGenerating}
+        trainingData={trainingData}
+        onDownload={onDownloadTrainingData}
+      />
 
       <BabylonEffects 
         image={currentImage}
@@ -74,7 +82,6 @@ const Effects = ({
         hasImage={hasImage}
         appliedFilters={appliedFilters}
         onUndo={onUndo}
-        onShowNotification={onShowNotification}
       />
     </div>
   );

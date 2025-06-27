@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Sparkles, Wand2 } from 'lucide-react';
+import { Sparkles, Wand2, Loader } from 'lucide-react';
 
 const AIShaderGenerator = ({ onGenerateAndApply, isProcessing }) => {
   const [prompt, setPrompt] = useState('');
 
   const handleGenerate = () => {
     if (!prompt || isProcessing) return;
-    // This will pass the prompt up to the parent component
     onGenerateAndApply(prompt);
   };
 
@@ -23,14 +22,19 @@ const AIShaderGenerator = ({ onGenerateAndApply, isProcessing }) => {
           placeholder="e.g., 'a watery, shimmering reflection'"
           className="ai-shader-textarea"
           rows={3}
+          disabled={isProcessing}
         />
         <button
           onClick={handleGenerate}
           disabled={isProcessing || !prompt}
           className="ai-shader-button"
         >
-          <Wand2 size={14} />
-          <span>Generate & Apply</span>
+          {isProcessing ? (
+            <Loader size={14} className="animate-spin" />
+          ) : (
+            <Wand2 size={14} />
+          )}
+          <span>{isProcessing ? 'Generating...' : 'Generate & Apply'}</span>
         </button>
       </div>
     </div>
