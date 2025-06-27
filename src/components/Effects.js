@@ -1,4 +1,3 @@
-// src/components/Effects.js
 
 import React from 'react';
 import Brightness from './effects/Brightness';
@@ -8,7 +7,6 @@ import Hue from './effects/Hue';
 import Filters from './effects/Filters';
 import BabylonEffects from './BabylonEffects';
 
-// 1. Accept the new props from Sidebar.js
 const Effects = ({ 
   effects, 
   onEffectChange, 
@@ -25,7 +23,7 @@ const Effects = ({
           <h3>Effects & Filters</h3>
           <p className="placeholder-text">Upload an image to apply effects</p>
         </div>
-        {/* Pass the simplified props that match the new architecture */}
+        {}
         <BabylonEffects 
           image={null}
           onRenderedImage={onDestructiveChange}
@@ -66,7 +64,7 @@ const Effects = ({
 
       <BabylonEffects 
         image={currentImage}
-        onRenderedImage={onDestructiveChange} // Connects to the main handler
+        onRenderedImage={onDestructiveChange}
         hasImage={hasImage}
         appliedFilters={appliedFilters}
       />

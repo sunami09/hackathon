@@ -1,12 +1,9 @@
-// src/components/ImageViewer.js
+
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ImageIcon } from 'lucide-react';
 import FloatingControls from './FloatingControls';
 
-// This helper function generates the real-time CSS filter string for sliders.
-// It intentionally ignores the destructive filters (blur, grayscale, etc.)
-// which are already "baked" into the processed image.
 function getRealtimeCssFilterString(effects) {
     if (!effects || typeof effects !== 'object') return 'none';
     const filters = [];

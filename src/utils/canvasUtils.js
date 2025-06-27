@@ -1,5 +1,3 @@
-// src/utils/canvasUtils.js
-
 function getCssFilterString(effects) {
     if (!effects || !effects.filters || effects.filters.length === 0) {
       return 'none';

@@ -1,15 +1,27 @@
-// src/components/BabylonEffects.js
 
 import React, { useState, useEffect } from 'react';
-import { Cpu, Film, GlassWater } from 'lucide-react'; // Import icons for our shaders
 import GLSLRenderer from './babylon/GLSLRenderer';
-import { SHADERS } from './babylon/shaders'; // Import the new shader definitions
+import { SHADERS } from './babylon/shaders'; 
+import { Cpu, Film,Grid3x3, Flame,GlassWater, Grid, Maximize, Brush, PenTool, Monitor, Wind, Waves, Sun, Zap, CircleDot } from 'lucide-react';
 
-// Map icons to shader IDs for dynamic rendering
+
 const ICONS = {
   pixalate: Cpu,
   posterize: Film,
   glass: GlassWater,
+  glitch: Zap,
+  dither: Grid,      
+  barrel: Maximize,
+  oilPainting: Brush,
+  celShading: PenTool,
+  crt: Monitor,
+  swirl: Wind,
+  barrel: Maximize,
+  dotScreen: Grid3x3,
+  burntEdges: Flame,
+  ripple: Waves,
+  heatHaze: Sun,  
+  refraction: CircleDot,
 };
 
 const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] }) => {
@@ -21,7 +33,7 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
     if (hasImage) setGlslRenderer(new GLSLRenderer());
   }, [hasImage]);
 
-  // Load shaders from the definition file
+  
   useEffect(() => {
     setAvailableShaders(SHADERS);
   }, []);
@@ -30,16 +42,13 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
     if (isProcessing || !glslRenderer || !image) return;
     setIsProcessing(true);
     try {
-      // Get default parameters from the shader definition
       const parameters = {};
       shader.parameters.forEach(param => {
         parameters[param.name] = param.default;
       });
 
-      // Pass the fragment shader source directly to the renderer
       const newImageData = await glslRenderer.applyFilter(image, shader.fragmentShader, parameters);
       
-      // Notify the App of the destructive change with the shader's unique ID
       onRenderedImage(newImageData, shader.id); 
 
     } catch (error) {
@@ -63,10 +72,10 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
         <Cpu size={16} className="effect-icon" />
         <span className="effect-label">Babylon Effects</span>
       </div>
-      {/* Dynamically generate the filter grid from the shaders file */}
+      {}
       <div className="filter-grid">
         {availableShaders.map((shader) => {
-            const Icon = ICONS[shader.id] || Cpu; // Fallback to a default icon
+            const Icon = ICONS[shader.id] || Cpu; 
             const isApplied = appliedFilters.includes(shader.id);
 
             return (

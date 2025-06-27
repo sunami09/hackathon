@@ -1,4 +1,4 @@
-// src/components/FloatingControls.js
+
 
 import React from 'react';
 import { ZoomIn, ZoomOut, RotateCcw, Undo2, XCircle } from 'lucide-react';
@@ -23,7 +23,7 @@ const FloatingControls = ({
         <button onClick={onZoomIn} className="floating-control-button" title="Zoom In"><ZoomIn size={14} /></button>
         <button onClick={onResetView} className="floating-control-button" title="Reset View"><RotateCcw size={14} /></button>
       </div>
-      {/* Undo/Reset buttons are now here */}
+      {}
       <div className="floating-button-group">
         <button onClick={onUndo} disabled={!canUndo} className="floating-control-button" title="Undo Last Action"><Undo2 size={14} /></button>
         <button onClick={onResetAll} disabled={!canReset} className="floating-control-button" title="Reset All Effects"><XCircle size={14} /></button>

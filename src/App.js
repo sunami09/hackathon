@@ -1,4 +1,3 @@
-// src/App.js
 
 import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
@@ -13,7 +12,6 @@ function App() {
     brightness: 0, contrast: 0, saturation: 0, hue: 0, filters: []
   });
   const [zoom, setZoom] = useState(1);
-  // NEW: State to track IDs of applied destructive filters
   const [appliedFilters, setAppliedFilters] = useState([]);
 
   const displayImage = processedImage || selectedImage;
@@ -23,7 +21,7 @@ function App() {
     setProcessedImage(null);
     setHistory([]);
     setEffects({ brightness: 0, contrast: 0, saturation: 0, hue: 0, filters: [] });
-    setAppliedFilters([]); // Reset applied filters
+    setAppliedFilters([]);
     setZoom(1);
   };
 
@@ -32,7 +30,6 @@ function App() {
       setHistory(prevHistory => [...prevHistory, displayImage]);
     }
     setProcessedImage(newImageData);
-    // Add the new filter ID to our tracking list
     if (filterId) {
       setAppliedFilters(prev => [...prev, filterId]);
     }
@@ -45,7 +42,6 @@ function App() {
     const lastImage = newHistory.pop();
     setProcessedImage(lastImage === selectedImage ? null : lastImage);
     setHistory(newHistory);
-    // Also remove the last applied filter from the tracking list
     setAppliedFilters(prev => prev.slice(0, -1));
     setEffects({ brightness: 0, contrast: 0, saturation: 0, hue: 0, filters: [] });
   };
@@ -53,7 +49,7 @@ function App() {
   const handleReset = () => {
     setProcessedImage(null);
     setHistory([]);
-    setAppliedFilters([]); // Reset applied filters
+    setAppliedFilters([]);
     setEffects({ brightness: 0, contrast: 0, saturation: 0, hue: 0, filters: [] });
   };
 
@@ -66,7 +62,6 @@ function App() {
         : [...effects.filters, value];
       
       const newImageData = await applyCssFiltersToImage(displayImage, { filters: newFilters });
-      // We can use a generic ID for all CSS filter changes
       handleDestructiveChange(newImageData, `css-filter-${Date.now()}`);
     }
   };
@@ -84,7 +79,6 @@ function App() {
         hasImage={!!selectedImage}
         currentImage={displayImage}
         onDestructiveChange={handleDestructiveChange}
-        // Pass down the list of applied filters
         appliedFilters={appliedFilters}
       />
       <ImageViewer 

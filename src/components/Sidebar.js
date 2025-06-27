@@ -1,4 +1,3 @@
-// src/components/Sidebar.js
 
 import React from 'react';
 import ImageUpload from './ImageUpload';
@@ -11,7 +10,7 @@ const Sidebar = ({
   hasImage,
   currentImage,
   onDestructiveChange,
-  appliedFilters // <-- ADD
+  appliedFilters
 }) => {
   return (
     <div className="sidebar">
@@ -24,7 +23,7 @@ const Sidebar = ({
           hasImage={hasImage}
           currentImage={currentImage}
           onDestructiveChange={onDestructiveChange}
-          appliedFilters={appliedFilters} // <-- PASS
+          appliedFilters={appliedFilters}
         />
       </div>
     </div>
