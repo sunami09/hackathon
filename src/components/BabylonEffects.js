@@ -1,10 +1,19 @@
 // src/components/BabylonEffects.js
 
 import React, { useState, useEffect } from 'react';
-import { Cpu } from 'lucide-react';
+import { Cpu, Film, GlassWater } from 'lucide-react'; // Import icons for our shaders
 import GLSLRenderer from './babylon/GLSLRenderer';
+import { SHADERS } from './babylon/shaders'; // Import the new shader definitions
+
+// Map icons to shader IDs for dynamic rendering
+const ICONS = {
+  pixalate: Cpu,
+  posterize: Film,
+  glass: GlassWater,
+};
 
 const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] }) => {
+  const [availableShaders, setAvailableShaders] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [glslRenderer, setGlslRenderer] = useState(null);
 
@@ -12,23 +21,34 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
     if (hasImage) setGlslRenderer(new GLSLRenderer());
   }, [hasImage]);
 
-  const handleApplyPixalate = async () => {
+  // Load shaders from the definition file
+  useEffect(() => {
+    setAvailableShaders(SHADERS);
+  }, []);
+
+  const handleApplyShader = async (shader) => {
     if (isProcessing || !glslRenderer || !image) return;
     setIsProcessing(true);
     try {
-      const pixalateParams = { blockSize: 0.035 };
-      const newImageData = await glslRenderer.applyFilter(image, 'pixalate', pixalateParams);
-      onRenderedImage(newImageData, 'pixalate'); 
+      // Get default parameters from the shader definition
+      const parameters = {};
+      shader.parameters.forEach(param => {
+        parameters[param.name] = param.default;
+      });
+
+      // Pass the fragment shader source directly to the renderer
+      const newImageData = await glslRenderer.applyFilter(image, shader.fragmentShader, parameters);
+      
+      // Notify the App of the destructive change with the shader's unique ID
+      onRenderedImage(newImageData, shader.id); 
+
     } catch (error) {
-      console.error("Failed to apply Pixalate filter:", error);
+      console.error(`Failed to apply shader '${shader.name}':`, error);
     }
     setIsProcessing(false);
   };
   
-  const isPixalateApplied = appliedFilters.includes('pixalate');
-
   if (!hasImage) {
-    // The placeholder when no image is loaded remains simple.
     return (
       <div className="placeholder-section">
         <h3>Babylon Effects</h3>
@@ -37,24 +57,31 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
     );
   }
 
-  // MODIFIED: The entire JSX structure is updated to match the .effect-panel style
   return (
     <div className="effect-panel">
       <div className="effect-header">
         <Cpu size={16} className="effect-icon" />
         <span className="effect-label">Babylon Effects</span>
       </div>
+      {/* Dynamically generate the filter grid from the shaders file */}
       <div className="filter-grid">
-        <button
-          onClick={handleApplyPixalate}
-          disabled={isProcessing || isPixalateApplied}
-          className={`filter-button ${isPixalateApplied ? 'active' : ''}`}
-          title={isPixalateApplied ? "Pixalate has already been applied" : "Apply a destructive Pixalate filter"}
-        >
-          {isProcessing ? <Cpu size={20} className="processing-icon"/> : <Cpu size={20} />}
-          <span>Pixalate</span>
-        </button>
-        {/* You can add more buttons here in the future for other Babylon effects */}
+        {availableShaders.map((shader) => {
+            const Icon = ICONS[shader.id] || Cpu; // Fallback to a default icon
+            const isApplied = appliedFilters.includes(shader.id);
+
+            return (
+                <button
+                    key={shader.id}
+                    onClick={() => handleApplyShader(shader)}
+                    disabled={isProcessing || isApplied}
+                    className={`filter-button ${isApplied ? 'active' : ''}`}
+                    title={isApplied ? `${shader.name} has been applied` : shader.description}
+                >
+                    <Icon size={20} />
+                    <span>{shader.name}</span>
+                </button>
+            );
+        })}
       </div>
     </div>
   );
