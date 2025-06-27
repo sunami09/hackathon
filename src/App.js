@@ -95,6 +95,7 @@ function App() {
       const fullPrompt = getAIGenerationPrompt(userPrompt);
       
       const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+      console.log(apiKey)
       const apiUrl = 'https://api.openai.com/v1/chat/completions';
 
       const payload = {
