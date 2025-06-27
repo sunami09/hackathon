@@ -1,0 +1,109 @@
+{
+  "format": "smartFilter",
+  "formatVersion": 1,
+  "name": "Default",
+  "namespace": null,
+  "comments": null,
+  "editorData": {
+    "locations": [
+      {
+        "blockId": 2,
+        "x": 980,
+        "y": 280,
+        "isCollapsed": false
+      },
+      {
+        "blockId": 6,
+        "x": 680,
+        "y": 300,
+        "isCollapsed": false
+      },
+      {
+        "blockId": 7,
+        "x": 260,
+        "y": 240,
+        "isCollapsed": false
+      },
+      {
+        "blockId": 8,
+        "x": 260,
+        "y": 420,
+        "isCollapsed": false
+      }
+    ],
+    "x": 0.0833740234375,
+    "y": 0.083343505859375,
+    "zoom": 1
+  },
+  "blocks": [
+    {
+      "name": "output",
+      "uniqueId": 2,
+      "blockType": "OutputBlock",
+      "namespace": null,
+      "comments": null
+    },
+    {
+      "name": "PixalateImage",
+      "uniqueId": 6,
+      "blockType": "PixalateImage",
+      "namespace": "Custom_Blocks",
+      "comments": null,
+      "outputTextureOptions": {
+        "ratio": 1,
+        "format": 5,
+        "type": 0
+      }
+    },
+    {
+      "name": "MainTexture",
+      "uniqueId": 7,
+      "blockType": "InputBlock",
+      "namespace": null,
+      "comments": null,
+      "data": {
+        "inputType": 2,
+        "url": "/assets/logo.png",
+        "urlTypeHint": "image",
+        "flipY": true,
+        "anisotropicFilteringLevel": 4,
+        "forcedExtension": null
+      }
+    },
+    {
+      "name": "blockSize",
+      "uniqueId": 8,
+      "blockType": "InputBlock",
+      "namespace": null,
+      "comments": null,
+      "data": {
+        "inputType": 1,
+        "value": 0.02,
+        "animationType": null,
+        "valueDeltaPerMs": null,
+        "min": null,
+        "max": null
+      }
+    }
+  ],
+  "connections": [
+    {
+      "inputBlock": 2,
+      "inputConnectionPoint": "input",
+      "outputBlock": 6,
+      "outputConnectionPoint": "output"
+    },
+    {
+      "inputBlock": 6,
+      "inputConnectionPoint": "input",
+      "outputBlock": 7,
+      "outputConnectionPoint": "output"
+    },
+    {
+      "inputBlock": 6,
+      "inputConnectionPoint": "blockSize",
+      "outputBlock": 8,
+      "outputConnectionPoint": "output"
+    }
+  ]
+}
