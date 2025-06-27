@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ImageUpload from './ImageUpload';
 import Effects from './Effects';
@@ -10,7 +9,9 @@ const Sidebar = ({
   hasImage,
   currentImage,
   onDestructiveChange,
-  appliedFilters
+  appliedFilters,
+  onUndo,
+  onShowNotification
 }) => {
   return (
     <div className="sidebar">
@@ -24,6 +25,7 @@ const Sidebar = ({
           currentImage={currentImage}
           onDestructiveChange={onDestructiveChange}
           appliedFilters={appliedFilters}
+          onUndo={onUndo}
         />
       </div>
     </div>

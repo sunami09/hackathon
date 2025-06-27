@@ -1,3 +1,4 @@
+// src/components/Effects.js
 
 import React from 'react';
 import Brightness from './effects/Brightness';
@@ -13,7 +14,9 @@ const Effects = ({
   hasImage,
   currentImage,
   onDestructiveChange,
-  appliedFilters 
+  appliedFilters,
+  onUndo,
+  onShowNotification 
 }) => {
 
   if (!hasImage) {
@@ -23,15 +26,18 @@ const Effects = ({
           <h3>Effects & Filters</h3>
           <p className="placeholder-text">Upload an image to apply effects</p>
         </div>
-        {}
+
         <BabylonEffects 
           image={null}
-          onRenderedImage={onDestructiveChange}
           hasImage={false}
+          appliedFilters={[]}
+          onUndo={onUndo}
+          onShowNotification={onShowNotification}
+          onRenderedImage={onDestructiveChange} 
         />
       </div>
     );
-}
+  }
 
   return (
     <div className="effects-wrapper">
@@ -67,6 +73,8 @@ const Effects = ({
         onRenderedImage={onDestructiveChange}
         hasImage={hasImage}
         appliedFilters={appliedFilters}
+        onUndo={onUndo}
+        onShowNotification={onShowNotification}
       />
     </div>
   );

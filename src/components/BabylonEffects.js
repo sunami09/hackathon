@@ -1,30 +1,33 @@
-
 import React, { useState, useEffect } from 'react';
+import { 
+    Cpu, Film, GlassWater, Signal, Grid, Maximize, Brush, PenTool,
+    Monitor, Wind, Waves, Sun, Zap, CircleDot, Grid3x3, Flame,
+    Sunrise, PenSquare
+} from 'lucide-react';
 import GLSLRenderer from './babylon/GLSLRenderer';
-import { SHADERS } from './babylon/shaders'; 
-import { Cpu, Film,Grid3x3, Flame,GlassWater, Grid, Maximize, Brush, PenTool, Monitor, Wind, Waves, Sun, Zap, CircleDot } from 'lucide-react';
-
+import { SHADERS } from './babylon/shaders';
 
 const ICONS = {
-  pixalate: Cpu,
-  posterize: Film,
-  glass: GlassWater,
-  glitch: Zap,
-  dither: Grid,      
-  barrel: Maximize,
-  oilPainting: Brush,
-  celShading: PenTool,
-  crt: Monitor,
-  swirl: Wind,
-  barrel: Maximize,
-  dotScreen: Grid3x3,
-  burntEdges: Flame,
-  ripple: Waves,
-  heatHaze: Sun,  
-  refraction: CircleDot,
+    pixalate: Cpu,
+    posterize: Film,
+    frosted: GlassWater,
+    glitch: Zap,
+    dither: Grid,
+    oilPainting: Brush,
+    celShading: PenTool,
+    crt: Monitor,
+    swirl: Wind,
+    barrel: Maximize,
+    ripple: Waves,
+    heatHaze: Sun,
+    refraction: CircleDot,
+    dotScreen: Grid3x3,
+    burntEdges: Flame,
+    dreamyGlow: Sunrise,
+    crossHatch: PenSquare,
 };
 
-const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] }) => {
+const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [], onUndo, onShowNotification = () => {} }) => {
   const [availableShaders, setAvailableShaders] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [glslRenderer, setGlslRenderer] = useState(null);
@@ -38,14 +41,31 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
     setAvailableShaders(SHADERS);
   }, []);
 
-  const handleApplyShader = async (shader) => {
-    if (isProcessing || !glslRenderer || !image) return;
+  const handleToggleShader = async (shader) => {
+    if (isProcessing) return;
+
+    const isLastApplied = appliedFilters.length > 0 && appliedFilters[appliedFilters.length - 1] === shader.id;
+
+    if (isLastApplied) {
+      onUndo();
+      return;
+    }
+
+    const isApplied = appliedFilters.includes(shader.id);
+    if (isApplied) {
+      window.alert(`'${shader.name}' is applied before other effects. Undo other effects first.`);
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const parameters = {};
       shader.parameters.forEach(param => {
         parameters[param.name] = param.default;
       });
+      if (parameters.hasOwnProperty('time')) {
+        parameters.time = (Date.now() / 1000.0) % 3600;
+      }
 
       const newImageData = await glslRenderer.applyFilter(image, shader.fragmentShader, parameters);
       
@@ -72,7 +92,6 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
         <Cpu size={16} className="effect-icon" />
         <span className="effect-label">Babylon Effects</span>
       </div>
-      {}
       <div className="filter-grid">
         {availableShaders.map((shader) => {
             const Icon = ICONS[shader.id] || Cpu; 
@@ -81,10 +100,10 @@ const BabylonEffects = ({ image, onRenderedImage, hasImage, appliedFilters = [] 
             return (
                 <button
                     key={shader.id}
-                    onClick={() => handleApplyShader(shader)}
-                    disabled={isProcessing || isApplied}
+                    onClick={() => handleToggleShader(shader)}
+                    disabled={isProcessing}
                     className={`filter-button ${isApplied ? 'active' : ''}`}
-                    title={isApplied ? `${shader.name} has been applied` : shader.description}
+                    title={shader.description}
                 >
                     <Icon size={20} />
                     <span>{shader.name}</span>

@@ -1,8 +1,9 @@
-
+// src/components/ImageViewer.js
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ImageIcon } from 'lucide-react';
 import FloatingControls from './FloatingControls';
+import Notification from './Notification';
 
 function getRealtimeCssFilterString(effects) {
     if (!effects || typeof effects !== 'object') return 'none';
@@ -25,7 +26,9 @@ const ImageViewer = ({
     onUndo,
     onResetAll,
     canUndo,
-    canReset
+    canReset,
+    notification,
+    onClearNotification
 }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -35,19 +38,13 @@ const ImageViewer = ({
   const handleMouseDown = (e) => {
     if (zoom > 1) {
       setIsDragging(true);
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      });
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
   };
 
   const handleMouseMove = (e) => {
     if (isDragging && zoom > 1) {
-      setPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      });
+      setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
     }
   };
 
@@ -59,8 +56,7 @@ const ImageViewer = ({
     e.preventDefault();
     if (image) {
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      const newZoom = Math.min(Math.max(zoom * delta, 0.1), 5);
-      onZoomChange(newZoom);
+      onZoomChange(Math.min(Math.max(zoom * delta, 0.1), 5));
     }
   };
 
@@ -75,6 +71,10 @@ const ImageViewer = ({
 
   return (
     <div className="image-viewer">
+      <Notification 
+        message={notification} 
+        onClear={onClearNotification} 
+      />
       {image && (
         <FloatingControls 
           zoom={zoom}

@@ -813,5 +813,113 @@ export const SHADERS = [
           gl_FragColor = vec4(final_color, alpha);
       }
     `
+},
+{
+    id: 'dreamyGlow',
+    name: 'Dreamy Glow',
+    description: 'Adds a soft, ethereal bloom to the brightest parts of the image.',
+    parameters: [
+      { name: 'threshold', type: 'float', default: 0.7 }, // How bright a pixel needs to be to glow
+      { name: 'intensity', type: 'float', default: 1.2 }, // How strong the glow is
+      { name: 'blurSize', type: 'float', default: 5.0 },  // How wide the glow is
+    ],
+    fragmentShader: `
+      precision mediump float;
+      uniform sampler2D u_texture;
+      uniform vec2 u_resolution;
+      varying vec2 vUV;
+
+      uniform float threshold;
+      uniform float intensity;
+      uniform float blurSize;
+
+      float getLuminance(vec3 color) {
+          return dot(color, vec3(0.299, 0.587, 0.114));
+      }
+
+      void main() {
+          vec2 onePixel = vec2(1.0, 1.0) / u_resolution;
+          vec4 originalColor = texture2D(u_texture, vUV);
+          
+          vec4 blurredColor = vec4(0.0);
+          float totalSamples = 0.0;
+
+          // Perform a blur on the bright parts of the image
+          for (float x = -4.0; x <= 4.0; x++) {
+              for (float y = -4.0; y <= 4.0; y++) {
+                  vec2 offset = vec2(x, y) * onePixel * blurSize;
+                  vec4 sampleColor = texture2D(u_texture, vUV + offset);
+                  
+                  // Only blur pixels that are brighter than the threshold
+                  if (getLuminance(sampleColor.rgb) > threshold) {
+                      blurredColor += sampleColor;
+                  }
+                  totalSamples += 1.0;
+              }
+          }
+          
+          blurredColor /= totalSamples;
+          
+          // Add the glowing, blurred color back to the original image
+          gl_FragColor = originalColor + blurredColor * intensity;
+      }
+    `
+},
+{
+    id: 'crossHatch',
+    name: 'Cross Hatch',
+    description: 'Transforms the image into a hand-drawn cross-hatch sketch.',
+    parameters: [
+        { name: 'hatchSpacing', type: 'float', default: 10.0 }, // How far apart the lines are
+        { name: 'lineWidth', type: 'float', default: 1.5 }     // How thick the lines are
+    ],
+    fragmentShader: `
+      precision mediump float;
+      uniform sampler2D u_texture;
+      uniform vec2 u_resolution;
+      varying vec2 vUV;
+
+      uniform float hatchSpacing;
+      uniform float lineWidth;
+
+      float getLuminance(vec3 color) {
+          return dot(color, vec3(0.299, 0.587, 0.114));
+      }
+
+      void main() {
+          vec3 color = texture2D(u_texture, vUV).rgb;
+          float lum = getLuminance(color);
+          
+          vec3 paperColor = vec3(0.95, 0.9, 0.85);
+          vec3 inkColor = vec3(0.1, 0.1, 0.1);
+
+          vec3 finalColor = paperColor;
+
+          // Calculate the screen coordinates for consistent line spacing
+          vec2 screenPos = gl_FragCoord.xy;
+          
+          // Four sets of hatching lines at different angles
+          float hatch1 = mod(screenPos.x + screenPos.y, hatchSpacing);
+          float hatch2 = mod(screenPos.x - screenPos.y, hatchSpacing);
+          float hatch3 = mod(screenPos.x, hatchSpacing);
+          float hatch4 = mod(screenPos.y, hatchSpacing);
+          
+          // Add layers of hatching based on luminance
+          if (lum < 0.8) {
+              if (hatch1 < lineWidth) finalColor = inkColor;
+          }
+          if (lum < 0.6) {
+              if (hatch2 < lineWidth) finalColor = inkColor;
+          }
+          if (lum < 0.4) {
+              if (hatch3 < lineWidth) finalColor = inkColor;
+          }
+          if (lum < 0.2) {
+              if (hatch4 < lineWidth) finalColor = inkColor;
+          }
+
+          gl_FragColor = vec4(finalColor, 1.0);
+      }
+    `
 }
     ];

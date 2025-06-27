@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import ImageViewer from './components/ImageViewer';
@@ -14,7 +13,17 @@ function App() {
   const [zoom, setZoom] = useState(1);
   const [appliedFilters, setAppliedFilters] = useState([]);
 
+  const [notification, setNotification] = useState('');
+
   const displayImage = processedImage || selectedImage;
+
+  const handleShowNotification = (message) => {
+    setNotification(message);
+  };
+
+  const handleClearNotification = () => {
+    setNotification('');
+  };
 
   const handleImageUpload = (imageData) => {
     setSelectedImage(imageData);
@@ -80,6 +89,8 @@ function App() {
         currentImage={displayImage}
         onDestructiveChange={handleDestructiveChange}
         appliedFilters={appliedFilters}
+        onUndo={handleUndo}
+        onShowNotification={handleShowNotification}
       />
       <ImageViewer 
         image={displayImage}
@@ -93,6 +104,8 @@ function App() {
         onResetAll={handleReset}
         canUndo={history.length > 0}
         canReset={!!processedImage}
+        notification={notification}
+        onClearNotification={handleClearNotification}
       />
     </div>
   );

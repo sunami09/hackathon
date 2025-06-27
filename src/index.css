@@ -523,7 +523,7 @@ body {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(31, 41, 55, 0.8);
+  background: rgba(31, 41, 55, 0.2);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(75, 85, 99, 0.3);
   border-radius: 12px;
@@ -633,4 +633,33 @@ body {
 .empty-subtitle {
   font-size: 14px;
   color: #6b7280;
+}
+.notification {
+  position: absolute;
+  top: 80px; /* Position it below the floating controls */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.2); /* Red for warning */
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  
+  /* Transition properties */
+  opacity: 0;
+  transform: translate(-50%, -20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.notification.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
