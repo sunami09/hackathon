@@ -437,6 +437,9 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+
+
+
 .effect-slider::-moz-range-thumb {
   width: 18px;
   height: 18px;

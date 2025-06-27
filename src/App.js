@@ -96,6 +96,8 @@ function App() {
       
       const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
       console.log(apiKey)
+
+
       const apiUrl = 'https://api.openai.com/v1/chat/completions';
 
       const payload = {
@@ -130,13 +132,14 @@ function App() {
 
       const result = await response.json();
       const rawText = result.choices[0].message.content;
-      console.log(rawText)
+      
       
   
       const trainingDataObject = { userInput: userPrompt, gptResponse: rawText };
       setTrainingData(prev => [...prev, trainingDataObject]);
 
       let shaderObject;
+      console.log(rawText)
       try {
        
         shaderObject = JSON.parse(rawText);
