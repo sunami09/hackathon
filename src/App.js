@@ -4,7 +4,7 @@ import ImageViewer from './components/ImageViewer';
 import { applyCssFiltersToImage } from './utils/canvasUtils';
 import { getAIGenerationPrompt } from './utils/aiPrompt';
 import GLSLRenderer from './components/babylon/GLSLRenderer';
-
+import Footer from './components/Footer';
 function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [processedImage, setProcessedImage] = useState(null);
@@ -226,6 +226,7 @@ function App() {
         canUndo={history.length > 0}
         canReset={!!processedImage}
       />
+      <Footer /> 
     </div>
   );
 }

@@ -438,7 +438,18 @@ body {
 }
 
 
-
+.app-footer {
+  position: absolute;
+  bottom: 0;
+  left: 320px; 
+  right: 0;
+  padding: 8px;
+  text-align: center;
+  font-size: 20px;
+  color: #6b7280;
+  background-color: #111827;
+  z-index: 10;
+}
 
 .effect-slider::-moz-range-thumb {
   width: 18px;
